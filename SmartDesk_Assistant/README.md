@@ -59,7 +59,7 @@ flowchart TD
 
 ## Verify
 
-Run `python -m pytest -q` from this folder. The tests cover KB breadth and retrieval, deliberate gaps, confirmation and cancellation, ticket creation, status with multiple tickets and no results, and per-session context. Tests use a temporary SQLite database and do not call external APIs.
+Install the optional test dependency with `python -m pip install -r requirements-dev.txt`, then run `python -m pytest -q` from this folder. The tests cover KB breadth and retrieval, deliberate gaps, confirmation and cancellation, ticket creation, status with multiple tickets and no results, API outage responses, LLM fallback, greetings, and per-session context. Tests use a temporary SQLite database and do not call external APIs.
 
 ## Example flows
 
