@@ -3,7 +3,7 @@
 **Run date:** 2026-09-29
 **Command:** `python -m pytest tests/ -v --tb=short`
 **Runtime:** Python 3.12.14; pytest 9.1.1
-**Result:** 60 passed in 0.89s
+**Result:** 60 passed in 0.90s
 **Collected test cases:** 60
 
 The tests use an isolated in-memory Chinook-shaped SQLite fixture. They do not require an API key or network access. Every case in the final run is listed below.
@@ -145,7 +145,6 @@ tests/test_tools.py::test_every_tool_returns_valid_json[tool6-args6] PASSED [ 96
 tests/test_tools.py::test_every_tool_returns_valid_json[tool7-args7] PASSED [ 98%]
 tests/test_tools.py::test_every_tool_returns_valid_json[tool8-args8] PASSED [100%]
 
-============================= 60 passed in 0.89s ==============================
+============================= 60 passed in 0.90s ==============================
 ```
-
 
