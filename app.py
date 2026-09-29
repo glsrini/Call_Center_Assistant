@@ -2,6 +2,8 @@
 from __future__ import annotations
 
 import logging
+from logging.handlers import RotatingFileHandler
+from pathlib import Path
 import time
 import uuid
 
@@ -13,7 +15,17 @@ from src.agents import create_graph
 from src.db import initialize_database
 from src.memory import memory_store
 
-logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s %(message)s")
+LOG_DIR = Path(__file__).resolve().parent / "logs"
+LOG_DIR.mkdir(exist_ok=True)
+LOG_FILE = LOG_DIR / "agent.log"
+LOG_FORMAT = "%(asctime)s %(levelname)s %(name)s %(message)s"
+
+logging.basicConfig(level=logging.INFO, format=LOG_FORMAT)
+root_log = logging.getLogger()
+if not any(getattr(handler, "baseFilename", None) == str(LOG_FILE) for handler in root_log.handlers):
+    file_handler = RotatingFileHandler(LOG_FILE, maxBytes=2_000_000, backupCount=3, encoding="utf-8")
+    file_handler.setFormatter(logging.Formatter(LOG_FORMAT))
+    root_log.addHandler(file_handler)
 log = logging.getLogger(__name__)
 initialize_database()
 graph = create_graph(checkpointer=MemorySaver())
@@ -30,6 +42,7 @@ def respond(message: str, history: list, session: dict):
     if not message:
         return history, session, "Enter a message to continue."
     started = time.monotonic()
+    log.info("Chat request started session_id=%s", session["thread_id"])
     history = history + [{"role": "user", "content": message}]
     if session.get("pending_query"):
         combined = f"{session['pending_query']}\nCustomer ID is {message}" if message.isdigit() else f"{session['pending_query']}\n{message}"
@@ -48,9 +61,15 @@ def respond(message: str, history: list, session: dict):
                 pass
         history = history + [{"role": "assistant", "content": answer}]
         elapsed = time.monotonic() - started
+        log.info(
+            "Chat request completed session_id=%s specialists=%s elapsed_seconds=%.2f",
+            session["thread_id"],
+            ",".join(result.get("calls", [])) or "none",
+            elapsed,
+        )
         return history, session, f"Completed in {elapsed:.2f}s"
     except Exception:
-        log.exception("Chat request failed")
+        log.exception("Chat request failed session_id=%s", session["thread_id"])
         return history + [{"role": "assistant", "content": "I hit an error while handling that request. Please try again."}], session, "Error: request failed"
 
 
@@ -74,4 +93,3 @@ with gr.Blocks(title="Call_Center_Assistant") as demo:
 
 if __name__ == "__main__":
     demo.launch(server_name="0.0.0.0", server_port=settings.port)
-
