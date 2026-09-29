@@ -31,6 +31,10 @@ pytest tests/ -v
 
 Tests create a small disposable Chinook-shaped SQLite fixture and do not need a network connection or API key.
 
+## Runtime logs
+
+The app writes INFO-level execution events to `logs/agent.log` and rotates the file at 2 MB, keeping up to three backups. Runtime logs are local and ignored by Git; the repository includes an empty `logs/` directory so the log destination exists after checkout. Log entries record session IDs, selected specialists, elapsed time, and failures without recording customer messages or assistant responses. For Docker deployments, mount `/app/logs` to persistent storage if logs should survive container replacement.
+
 ## Architecture
 
 - `src/db.py` downloads/caches and loads the Chinook SQL source and exposes SQLAlchemy parameter-bound query execution and health checks.
@@ -50,4 +54,3 @@ The graph uses an in-memory checkpoint and the preference store is also in memor
 - “What’s the weather today?”
 
 Do not commit `.env`, API keys, or the downloaded Chinook SQL script.
-
