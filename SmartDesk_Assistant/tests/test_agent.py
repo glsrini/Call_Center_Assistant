@@ -2,6 +2,7 @@ from pathlib import Path
 from smartdesk.agent import SmartDeskAgent
 from smartdesk.rag import KnowledgeBase
 from smartdesk.tickets import LocalTickets
+from smartdesk.tickets import TicketError
 
 BASE=Path(__file__).resolve().parents[1]
 
@@ -53,4 +54,27 @@ def test_session_remembers_email_and_separates_sessions(tmp_path):
     agent.respond("Unknown issue","a"); reply=agent.respond("pat@example.com","a")
     assert "pat@example.com" in reply
     assert "work email" in agent.respond("Unknown issue","b").lower()
+
+def test_ticket_api_failures_are_polite(tmp_path):
+    class UnavailableTickets:
+        def create(self,*args): raise TicketError("ticket service unavailable")
+        def list_for_email(self,*args): raise TicketError("ticket service unavailable")
+    agent=SmartDeskAgent(KnowledgeBase(BASE/"data"/"knowledge_base.json"),UnavailableTickets())
+    agent.respond("My monitor flickers","create-failure")
+    agent.respond("jules@example.com","create-failure")
+    reply=agent.respond("yes","create-failure")
+    assert "try again later" in reply.lower()
+    reply=agent.respond("Ticket status for jules@example.com","status-failure")
+    assert "try again later" in reply.lower()
+
+def test_optional_llm_failure_uses_retrieved_answer(tmp_path,monkeypatch):
+    monkeypatch.setattr("smartdesk.agent.grounded_answer",lambda question,hits: None)
+    agent,_=build(tmp_path)
+    reply=agent.respond("How do I reset my password?")
+    assert "https://help.northstar.example/password" in reply
+    assert "it-01" in reply
+
+def test_greeting_is_graceful(tmp_path):
+    agent,_=build(tmp_path)
+    assert "Hello" in agent.respond("Hi")
 
