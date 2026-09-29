@@ -3,7 +3,7 @@
 **Run date:** 2026-09-29
 **Command:** `python -m pytest tests/ -v --tb=short`
 **Runtime:** Python 3.12.14; pytest 9.1.1
-**Result:** 60 passed in 0.87s
+**Result:** 60 passed in 0.89s
 **Collected test cases:** 60
 
 The tests use an isolated in-memory Chinook-shaped SQLite fixture. They do not require an API key or network access. Every case in the final run is listed below.
