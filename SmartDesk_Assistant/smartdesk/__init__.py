@@ -1,0 +1,2 @@
+"""SmartDesk Assistant application package."""
+
