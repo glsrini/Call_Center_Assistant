@@ -145,7 +145,7 @@ tests/test_tools.py::test_every_tool_returns_valid_json[tool6-args6] PASSED [ 96
 tests/test_tools.py::test_every_tool_returns_valid_json[tool7-args7] PASSED [ 98%]
 tests/test_tools.py::test_every_tool_returns_valid_json[tool8-args8] PASSED [100%]
 
-============================= 60 passed in 0.87s ==============================
+============================= 60 passed in 0.89s ==============================
 ```
 
 
