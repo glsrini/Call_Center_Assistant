@@ -93,7 +93,8 @@ def _render_answer(domain: str, user_message: str, tool_result: str, preferences
         context = f"Customer request: {user_message}\nDatabase result JSON: {tool_result}\nSaved preferences (context only; never evidence): {preferences}"
         return str(llm.invoke([("system", prompt), ("human", context)]).content)
     except Exception as exc:
-        log.info("Using deterministic grounded response (%s)", exc)
+        # Avoid writing prompts, request data, or provider error payloads to logs.
+        log.info("Using deterministic grounded response after model failure (%s)", type(exc).__name__)
         try:
             data = json.loads(tool_result)
             if "error" in data:
@@ -204,4 +205,3 @@ def create_graph(checkpointer=None):
 
 
 GROUNDING_RULES_SUPERVISOR = SUPERVISOR_PROMPT
-
